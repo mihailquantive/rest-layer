@@ -538,18 +538,18 @@ func (e *ElemMatch) Prepare(validator schema.Validator) error {
 		return err
 	}
 
-	arr, ok := f.Validator.(*schema.Array)
+	arr, ok := f.Validator.(schema.ArrayValidator)
 	if !ok {
 		return fmt.Errorf("%s: is not an array", e.Field)
 	}
 
 	// FIXME: Should allow any type.
-	obj, ok := arr.Values.Validator.(*schema.Object)
-	if !ok {
-		return fmt.Errorf("%s: array elements are not schema.Object", e.Field)
+	elementValidator, err := arr.GetElementValidator()
+	if err != nil {
+		return fmt.Errorf("%s: %s", e.Field, err.Error())
 	}
 
-	return prepareExpressions(e.Exps, obj.Schema)
+	return prepareExpressions(e.Exps, elementValidator)
 }
 
 // String implements Expression interface.

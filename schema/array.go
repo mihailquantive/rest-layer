@@ -92,3 +92,15 @@ func (v Array) GetField(name string) *Field {
 	}
 	return &v.Values
 }
+
+type ArrayValidator interface {
+	GetElementValidator() (Validator, error)
+}
+
+func (v Array) GetElementValidator() (Validator, error) {
+	obj, ok := v.Values.Validator.(*Object)
+	if !ok {
+		return nil, errors.New("array elements are not schema.Object")
+	}
+	return obj.Schema, nil
+}
